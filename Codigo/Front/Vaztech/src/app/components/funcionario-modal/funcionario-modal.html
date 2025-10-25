@@ -1,0 +1,64 @@
+<div class="modal-container">
+  <h2 mat-dialog-title class="modal-title">
+    {{ isEditMode ? 'Editar Funcionário' : 'Adicionar Funcionário' }}
+  </h2>
+
+  <mat-dialog-content class="modal-content">
+    <form [formGroup]="funcionarioForm" class="funcionario-form">
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Código do Funcionário</mat-label>
+        <input matInput formControlName="codFuncionario" placeholder="Digite o código" />
+        <mat-error *ngIf="funcionarioForm.get('codFuncionario')?.hasError('required')">
+          Código é obrigatório
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Nome</mat-label>
+        <input matInput formControlName="nome" placeholder="Digite o nome completo" />
+        <mat-error *ngIf="funcionarioForm.get('nome')?.hasError('required')">
+          Nome é obrigatório
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>CPF/CNPJ</mat-label>
+        <input matInput formControlName="cpfCnpj" placeholder="Digite o CPF ou CNPJ" />
+        <mat-error *ngIf="funcionarioForm.get('cpfCnpj')?.hasError('required')">
+          CPF/CNPJ é obrigatório
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Data de Nascimento</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="dataNascimento" />
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+        <mat-error *ngIf="funcionarioForm.get('dataNascimento')?.hasError('required')">
+          Data de nascimento é obrigatória
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="status">
+          <mat-option *ngFor="let status of statusOptions" [value]="status.value">
+            {{ status.label }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="funcionarioForm.get('status')?.hasError('required')">
+          Status é obrigatório
+        </mat-error>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="modal-actions">
+    <button mat-button (click)="onCancelar()" type="button" class="btn-cancelar">
+      Cancelar
+    </button>
+    <button mat-raised-button color="primary" (click)="onSalvar()" type="button" class="btn-salvar">
+      Salvar
+    </button>
+  </mat-dialog-actions>
+</div>
