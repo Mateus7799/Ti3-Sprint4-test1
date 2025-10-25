@@ -1,0 +1,34 @@
+<p-toast />
+<main>
+  <p-button label="Abrir modal de código [TEMPORÁRIO]" (click)="abrirModalCodigo()"></p-button>
+  <p-dialog
+    header="Confirmar identidade"
+    (onHide)="escondeuModalCodigo(codigoForm)"
+    [modal]="true"
+    [(visible)]="modalCodigoAberto"
+    [style]="{ width: '25rem' }"
+  >
+    <h2 class="text-lg mb-4 text-neutral-500 text-center">Digite seu código de funcionário:</h2>
+    <form
+      #codigoForm="ngForm"
+      class="flex flex-col w-full items-center space-y-4"
+      (ngSubmit)="enviarCodigoForm(codigoForm)"
+    >
+      <p-inputotp
+        ngModel
+        #otpInputCodigo="ngModel"
+        name="codigo"
+        required
+        [minlength]="4"
+        [integerOnly]="true"
+        [invalid]="otpInputCodigo.invalid && (otpInputCodigo.touched || codigoForm.submitted)"
+      />
+      @if (otpInputCodigo.invalid && (otpInputCodigo.touched || codigoForm.submitted)) {
+        <p-message severity="error" size="small" variant="simple">Passcode is required.</p-message>
+      }
+      <button class="w-36" pButton severity="primary" type="submit" [disabled]="codigoForm.invalid">
+        Confirmar
+      </button>
+    </form>
+  </p-dialog>
+</main>

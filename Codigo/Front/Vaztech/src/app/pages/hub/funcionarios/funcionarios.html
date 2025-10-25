@@ -1,0 +1,84 @@
+<main>
+  <div class="flex gap-4">
+    @for (funcionario of funcionarios; track funcionario.id) {
+      <p-card [style]="{ width: '25rem', overflow: 'hidden' }">
+        <ng-template #title>
+          <p-avatar icon="pi pi-user" class="mr-2" size="large" shape="circle" />
+          <span>{{ funcionario.nome }}</span>
+        </ng-template>
+        <p>Data de Funcionário: {{ funcionario.dataNascimento | date }}</p>
+        <p>CPF: {{ funcionario.cpfCnpj | cpf }}</p>
+        <ng-template #footer>
+          <div class="flex gap-4 mt-1">
+            <p-button
+              label="Ver histórico"
+              icon="pi pi-history"
+              severity="secondary"
+              class="w-full"
+              [outlined]="true"
+              styleClass="w-full"
+            />
+            <p-button
+              label="Mudar Código"
+              icon="pi pi-wrench"
+              class="w-full"
+              styleClass="w-full"
+              (click)="abrirModalMudarCodigo(funcionario.id)"
+            />
+          </div>
+        </ng-template>
+      </p-card>
+    }
+  </div>
+  <p-dialog
+    header="Mudar Código"
+    (onHide)="esconderMudarCodigoModal(mudarCodigoForm)"
+    [modal]="true"
+    [(visible)]="modalMudarCodigoAberto"
+    [style]="{ width: '25rem' }"
+  >
+    <h2 class="text-lg mb-4 text-neutral-500 text-center">Digite o novo código:</h2>
+    <form
+      #mudarCodigoForm="ngForm"
+      class="flex flex-col w-full items-center space-y-4"
+      (ngSubmit)="enviarMudarCodigoForm(mudarCodigoForm)"
+    >
+      <p-inputotp
+        ngModel
+        #otpInputCodigo="ngModel"
+        name="codigo"
+        required
+        [minlength]="4"
+        [integerOnly]="true"
+        [invalid]="otpInputCodigo.invalid && (otpInputCodigo.touched || mudarCodigoForm.submitted)"
+      />
+      @if (otpInputCodigo.invalid && (otpInputCodigo.touched || mudarCodigoForm.submitted)) {
+        <p-message severity="error" size="small" variant="simple"
+          >Código novo é obrigatório.</p-message
+        >
+      }
+      <div class="flex flex-col space-y-1">
+        <p class="text-md text-neutral-500 text-center">Essa ação não pode ser desfeita!</p>
+        <div class="gap-2 flex items-center justify-center">
+          <p-checkbox
+            ngModel
+            inputId="entendi"
+            name="entendi"
+            required
+            [binary]="true"
+          ></p-checkbox>
+          <label for="entendi" class="font-bold">Confirmar</label>
+        </div>
+      </div>
+      <button
+        class="w-36"
+        pButton
+        severity="primary"
+        type="submit"
+        [disabled]="mudarCodigoForm.invalid"
+      >
+        Mudar
+      </button>
+    </form>
+  </p-dialog>
+</main>
