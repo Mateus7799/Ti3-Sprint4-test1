@@ -1,54 +1,52 @@
 package br.com.vaztech.vaztech.controller;
 
-import br.com.vaztech.vaztech.dto.ProdutoResponseDTO; // CORREÇÃO: Importado DTO correto
-import br.com.vaztech.vaztech.dto.ProdutoAddRequestDTO;
-import br.com.vaztech.vaztech.dto.ProdutoAddResponseDTO;
-import br.com.vaztech.vaztech.dto.ProdutoUpdateRequestDTO;
-import br.com.vaztech.vaztech.dto.ProdutoUpdateResponseDTO;
-import br.com.vaztech.vaztech.dto.StatusProdutoDTO;
+import br.com.vaztech.vaztech.dto.*;
 import br.com.vaztech.vaztech.service.ProdutoService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/produto")
 public class ProdutoController {
 
     @Autowired
     private ProdutoService produtoService;
 
-    @PostMapping("/produto")
-    public ResponseEntity<ProdutoAddResponseDTO> addProduto(@RequestBody ProdutoAddRequestDTO dto) throws RuntimeException{
-        ProdutoAddResponseDTO response = produtoService.produtoAdd(dto);
-        return ResponseEntity.status(201).body(response);
+    @PostMapping
+    public ResponseEntity<ProdutoResponseDTO> criarProduto(@RequestBody ProdutoAddRequestDTO dto) throws ResponseStatusException {
+        ProdutoResponseDTO response = produtoService.produtoAdd(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/produto/status")
-    public ResponseEntity<List<StatusProdutoDTO>> listarTodos() {
-        List<StatusProdutoDTO> response = produtoService.listarStatus();
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/produto")
-    public ResponseEntity<ProdutoResponseDTO> listarProdutos(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+    @GetMapping
+    public ResponseEntity<ProdutoListResponseDTO> listarProdutos(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        ProdutoResponseDTO response = produtoService.listarProdutosComPaginacao(pageable);
+        ProdutoListResponseDTO response = produtoService.listarProdutosComPaginacao(pageable);
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/produto/{numeroSerie}")
-    public ResponseEntity<ProdutoUpdateResponseDTO> updateProduto(
-            @PathVariable String numeroSerie,
-            @RequestBody ProdutoUpdateRequestDTO dto) throws RuntimeException {
-        ProdutoUpdateResponseDTO response = produtoService.produtoUpdate(numeroSerie, dto);
+    @GetMapping("/buscar")
+    public ResponseEntity<List<ProdutoBuscarResponseDTO>> buscarProdutos(@RequestParam String query) {
+        return ResponseEntity.ok(produtoService.buscarProdutos(query));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProdutoResponseDTO> atualizarProduto(@PathVariable Integer id, @Valid @RequestBody ProdutoUpdateRequestDTO dto) throws ResponseStatusException {
+        ProdutoResponseDTO response = produtoService.produtoUpdate(dto.id(), dto);
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/status")
+    public ResponseEntity<List<ProdutoStatusDTO>> listarProdutoStatus() {
+        List<ProdutoStatusDTO> response = produtoService.listarProdutoStatus();
+        return ResponseEntity.ok(response);
+    }
 }

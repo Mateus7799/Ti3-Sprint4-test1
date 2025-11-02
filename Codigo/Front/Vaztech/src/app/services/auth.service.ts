@@ -42,6 +42,11 @@ export class AuthService {
       });
   }
 
+  public deslogar() {
+    sessionStorage.removeItem('auth');
+    this.router.navigate(['login']);
+  }
+
   // public teste() {
   //   this.http.get(`${environment.apiURL}/usuario`).subscribe((res) => console.log(res));
   // }

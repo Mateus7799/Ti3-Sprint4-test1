@@ -7,7 +7,7 @@ public record FuncionarioResponseDTO(
         Integer id,
         String codFuncionario,
         String nome,
-        String cpfCnpj,
+        String cpf,
         LocalDate dataNascimento,
         Integer status
 ) {
@@ -16,7 +16,7 @@ public record FuncionarioResponseDTO(
                 funcionario.getId(),
                 funcionario.getCodFuncionario(),
                 funcionario.getNome(),
-                funcionario.getCpfCnpj(),
+                funcionario.getCpf(),
                 funcionario.getDataNascimento(),
                 funcionario.getStatus()
         );

@@ -11,11 +11,15 @@ import { Produto, ProdutoStatus } from '../../../../models/produto.model';
 import { ProdutoService } from '../../../../services/produto.service';
 import { Toast } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { FieldsetModule } from 'primeng/fieldset';
+import { FloatLabel } from 'primeng/floatlabel';
 
 @Component({
   selector: 'app-formulario-estoque',
   imports: [
     FormsModule,
+    FieldsetModule,
+    FloatLabel,
     InputTextModule,
     IftaLabel,
     DatePickerModule,

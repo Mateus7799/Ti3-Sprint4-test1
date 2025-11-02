@@ -1,5 +1,6 @@
 package br.com.vaztech.vaztech.infra.security;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,14 +30,22 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        // add rotas atualizadas para incluir /api
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
+                        .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 )
+
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                        })
+                )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

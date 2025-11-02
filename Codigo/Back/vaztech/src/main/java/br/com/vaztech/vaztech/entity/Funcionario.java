@@ -1,14 +1,18 @@
 package br.com.vaztech.vaztech.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "Funcionarios")
-@Getter
-@Setter
 public class Funcionario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,8 +25,8 @@ public class Funcionario {
     @Column(name = "nome", nullable = false, length = 100)
     private String nome;
 
-    @Column(name = "cpf_cnpj", nullable = false, unique = true, length = 20)
-    private String cpfCnpj;
+    @Column(name = "cpf", nullable = false, unique = true, length = 20)
+    private String cpf;
 
     @Column(name = "data_nascimento")
     private LocalDate dataNascimento;

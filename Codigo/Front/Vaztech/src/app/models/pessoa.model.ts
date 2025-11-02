@@ -2,20 +2,26 @@ export type PessoaResponse = {
   id: number;
   nome: string;
   cpfCnpj: string;
-  dataNascimento?: Date | string;
-  origem: string;
+  dataNascimento: Date | null;
+  origem: string | null;
 };
 
-export type PessoaAddRequest = {
+export type CadastrarPessoaBody = {
   nome: string;
   cpfCnpj: string;
-  dataNascimento?: string;
-  origem: string;
+  dataNascimento: Date | null;
+  origem: string | null;
 };
 
-export type PessoaUpdateRequest = {
+export type AlterarPessoaBody = {
+  id: number;
   nome: string;
   cpfCnpj: string;
-  dataNascimento?: string;
-  origem: string;
+  dataNascimento: Date | null;
+  origem: string | null;
+};
+
+export type PessoasReqDTO = {
+  content: PessoaResponse[];
+  totalElements: number;
 };

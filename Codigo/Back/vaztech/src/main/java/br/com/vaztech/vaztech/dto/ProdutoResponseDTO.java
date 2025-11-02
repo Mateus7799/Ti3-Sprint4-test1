@@ -1,26 +1,25 @@
 package br.com.vaztech.vaztech.dto;
 
-import java.util.List;
+import br.com.vaztech.vaztech.entity.Produto;
 
 public record ProdutoResponseDTO(
-        List<ProdutoItemDTO> items,
-        PaginacaoMetadataDTO metadata
+        Integer id,
+        String numeroSerie,
+        String aparelho,
+        String modelo,
+        String cor,
+        String observacoes,
+        String status
 ) {
-
-    public record ProdutoItemDTO(
-            String numeroSerie,
-            String aparelho,
-            String modelo,
-            String observacoes,
-            Integer status,
-            String cor
-    ) {}
-
-
-    public record PaginacaoMetadataDTO(
-            long totalItems,
-            int totalPages,
-            int currentPage,
-            int pageSize
-    ) {}
+    public ProdutoResponseDTO(Produto produto) {
+        this(
+                produto.getId(),
+                produto.getNumeroSerie(),
+                produto.getAparelho(),
+                produto.getModelo(),
+                produto.getCor(),
+                produto.getObservacoes(),
+                produto.getStatus().getNome()
+        );
+    }
 }

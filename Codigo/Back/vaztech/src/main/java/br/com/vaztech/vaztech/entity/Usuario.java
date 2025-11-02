@@ -1,18 +1,21 @@
 package br.com.vaztech.vaztech.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "Usuarios")
-@Getter
-@Setter
 public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    // 01 admin, 02 funcionario
     private Integer id;
 
     @Column(name = "senha", nullable = false)

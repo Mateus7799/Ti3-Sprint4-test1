@@ -1,13 +1,17 @@
 package br.com.vaztech.vaztech.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "StatusServico")
-@Getter
-@Setter
 public class StatusServico {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

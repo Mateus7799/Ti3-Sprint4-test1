@@ -1,24 +1,21 @@
 export type FuncionarioResponse = {
   id: number;
-  codFuncionario: string;
   nome: string;
-  dataNascimento: Date | string;
+  dataNascimento: Date;
   status: number;
-  cpfCnpj: string;
+  cpf: string;
 };
 
-export type FuncionarioAddRequest = {
-  codFuncionario: string;
+export type CadastrarFuncionarioBody = {
   nome: string;
-  cpfCnpj: string;
-  dataNascimento: string;
-  status: number;
+  dataNascimento: Date;
+  cpf: string;
+  codFuncionario: number;
 };
 
-export type FuncionarioUpdateRequest = {
-  codFuncionario: string;
+export type AlterarDadosPessoaisFuncionarioBody = {
+  id: number;
   nome: string;
-  cpfCnpj: string;
-  dataNascimento: string;
-  status: number;
+  dataNascimento: Date;
+  cpf: string;
 };

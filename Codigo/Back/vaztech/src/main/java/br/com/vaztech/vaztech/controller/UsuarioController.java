@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/usuario") // CORREÇÃO: Adicionado prefixo /api
+@RequestMapping("/api/usuario")
 public class UsuarioController {
     @GetMapping
     public ResponseEntity<String> getUsuario(){

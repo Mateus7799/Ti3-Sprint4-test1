@@ -1,15 +1,19 @@
 package br.com.vaztech.vaztech.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "Servicos")
-@Getter
-@Setter
 public class Servico {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

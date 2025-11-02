@@ -5,10 +5,11 @@ import { MenuModule } from 'primeng/menu';
 import { PanelModule } from 'primeng/panel';
 import { PerfisAuth } from '../../models/auth.models';
 import { AuthService } from '../../services/auth.service';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-hub',
-  imports: [MenuModule, PanelModule, RouterOutlet],
+  imports: [MenuModule, PanelModule, RouterOutlet, ButtonModule],
   templateUrl: './hub.html',
   styleUrl: './hub.css',
 })
@@ -20,6 +21,10 @@ export class HubComponent {
 
   ngOnInit(): void {
     this.perfilAtual = this.authService.perfil;
+  }
+
+  deslogar() {
+    this.authService.deslogar();
   }
 
   private commonItens: MenuItem[] = [

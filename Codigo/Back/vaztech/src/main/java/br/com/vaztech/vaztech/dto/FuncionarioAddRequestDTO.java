@@ -14,9 +14,9 @@ public record FuncionarioAddRequestDTO(
         @Size(max = 100, message = "Nome deve ter no máximo 100 caracteres")
         String nome,
 
-        @NotBlank(message = "CPF/CNPJ é obrigatório")
-        @Size(max = 20, message = "CPF/CNPJ deve ter no máximo 20 caracteres")
-        String cpfCnpj,
+        @NotBlank(message = "CPF é obrigatório")
+        @Size(max = 20, message = "CPF  deve ter no máximo 20 caracteres")
+        String cpf,
 
         @NotBlank(message = "Data de nascimento é obrigatório")
         LocalDate dataNascimento

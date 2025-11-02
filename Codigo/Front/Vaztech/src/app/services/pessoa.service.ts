@@ -2,32 +2,40 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
-import { PessoaResponse, PessoaAddRequest, PessoaUpdateRequest } from '../models/pessoa.model';
+import {
+  AlterarPessoaBody,
+  CadastrarPessoaBody,
+  PessoaResponse,
+  PessoasReqDTO,
+} from '../models/pessoa.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PessoaService {
   http = inject(HttpClient);
-  apiRoute = 'api/pessoas';
+  apiRoute = 'api/pessoa';
 
-  buscarPessoas(): Observable<PessoaResponse[]> {
-    return this.http.get<PessoaResponse[]>(`${environment.apiURL}/${this.apiRoute}`);
+  paginaPadrao = 0;
+  tamanhoPaginaPadrao = 4;
+
+  buscarPessoas(
+    pagina: number = this.paginaPadrao,
+    tamPagina: number = this.tamanhoPaginaPadrao,
+  ): Observable<PessoasReqDTO> {
+    return this.http.get<PessoasReqDTO>(
+      `${environment.apiURL}/${this.apiRoute}/listar?page=${pagina}&size=${tamPagina}`,
+    );
   }
 
-  buscarPessoaPorId(id: number): Observable<PessoaResponse> {
-    return this.http.get<PessoaResponse>(`${environment.apiURL}/${this.apiRoute}/${id}`);
-  }
-
-  criarPessoa(pessoa: PessoaAddRequest): Observable<PessoaResponse> {
+  cadastrarPessoa(pessoa: CadastrarPessoaBody): Observable<PessoaResponse> {
     return this.http.post<PessoaResponse>(`${environment.apiURL}/${this.apiRoute}`, pessoa);
   }
 
-  atualizarPessoa(id: number, pessoa: PessoaUpdateRequest): Observable<PessoaResponse> {
-    return this.http.put<PessoaResponse>(`${environment.apiURL}/${this.apiRoute}/${id}`, pessoa);
-  }
-
-  excluirPessoa(id: number): Observable<void> {
-    return this.http.delete<void>(`${environment.apiURL}/${this.apiRoute}/${id}`);
+  editarPessoa(pessoa: AlterarPessoaBody): Observable<PessoaResponse> {
+    return this.http.put<PessoaResponse>(
+      `${environment.apiURL}/${this.apiRoute}/${pessoa.id}`,
+      pessoa,
+    );
   }
 }
