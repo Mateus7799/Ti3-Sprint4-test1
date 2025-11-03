@@ -1,0 +1,1955 @@
+{
+  "metadata": {
+    "project_name": "Vaztech",
+    "backend": "Spring Boot 3.5.5 + Java 17",
+    "frontend": "Angular 20.2.0 + TypeScript 5.9.2",
+    "database": "SQL Server (Azure)",
+    "generated_at": "2025-11-03",
+    "total_entities": 8,
+    "total_dtos": 32,
+    "total_frontend_models": 18
+  },
+  "entities": [
+    {
+      "name": "Usuario",
+      "stereotype": "entity",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/entity/Usuario.java"
+      ],
+      "table_name": "Usuarios",
+      "attributes": [
+        {
+          "name": "id",
+          "type": "Integer",
+          "nullable": false,
+          "primary_key": true,
+          "generated": "IDENTITY",
+          "origin": "backend"
+        },
+        {
+          "name": "senha",
+          "type": "String",
+          "nullable": false,
+          "max_length": 255,
+          "origin": "backend",
+          "notes": "Senha criptografada com BCrypt"
+        }
+      ],
+      "relationships": [],
+      "notes": "Entidade de autenticação. Senha armazenada usando BCryptPasswordEncoder. Não possui relacionamentos diretos com outras entidades."
+    },
+    {
+      "name": "Funcionario",
+      "stereotype": "entity",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/entity/Funcionario.java"
+      ],
+      "table_name": "Funcionarios",
+      "attributes": [
+        {
+          "name": "id",
+          "type": "Integer",
+          "nullable": false,
+          "primary_key": true,
+          "generated": "IDENTITY",
+          "origin": "backend"
+        },
+        {
+          "name": "codFuncionario",
+          "type": "String",
+          "nullable": false,
+          "max_length": 50,
+          "unique": true,
+          "origin": "backend",
+          "notes": "Código único de identificação do funcionário (usado para autorizações)"
+        },
+        {
+          "name": "nome",
+          "type": "String",
+          "nullable": false,
+          "max_length": 100,
+          "origin": "backend"
+        },
+        {
+          "name": "cpf",
+          "type": "String",
+          "nullable": false,
+          "max_length": 20,
+          "unique": true,
+          "origin": "backend"
+        },
+        {
+          "name": "dataNascimento",
+          "type": "LocalDate",
+          "nullable": true,
+          "origin": "backend"
+        },
+        {
+          "name": "status",
+          "type": "Integer",
+          "nullable": false,
+          "default_value": 1,
+          "origin": "backend",
+          "notes": "Status: 1=Ativo, 0=Inativo"
+        }
+      ],
+      "relationships": [
+        {
+          "type": "OneToMany",
+          "target": "Operacao",
+          "field": "funcionario",
+          "multiplicity": "1..*",
+          "inverse": true,
+          "source_file": "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/entity/Operacao.java"
+        }
+      ],
+      "notes": "Representa funcionários do sistema. Status define se está ativo ou inativo. Apenas ADMIN pode criar/editar funcionários."
+    },
+    {
+      "name": "Pessoa",
+      "stereotype": "entity",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/entity/Pessoa.java"
+      ],
+      "table_name": "Pessoas",
+      "attributes": [
+        {
+          "name": "id",
+          "type": "Integer",
+          "nullable": false,
+          "primary_key": true,
+          "generated": "IDENTITY",
+          "origin": "backend"
+        },
+        {
+          "name": "nome",
+          "type": "String",
+          "nullable": false,
+          "max_length": 100,
+          "origin": "backend"
+        },
+        {
+          "name": "cpfCnpj",
+          "type": "String",
+          "nullable": false,
+          "max_length": 20,
+          "unique": true,
+          "origin": "backend",
+          "notes": "Pode ser CPF (11 dígitos) ou CNPJ (14 dígitos)"
+        },
+        {
+          "name": "dataNascimento",
+          "type": "LocalDate",
+          "nullable": true,
+          "origin": "backend",
+          "notes": "Obrigatório apenas para CPF (pessoa física)"
+        },
+        {
+          "name": "origem",
+          "type": "String",
+          "nullable": true,
+          "max_length": 50,
+          "origin": "backend",
+          "notes": "Indica se é 'cliente' ou 'fornecedor'"
+        }
+      ],
+      "relationships": [
+        {
+          "type": "OneToMany",
+          "target": "Operacao",
+          "field": "pessoa",
+          "multiplicity": "1..*",
+          "inverse": true,
+          "source_file": "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/entity/Operacao.java"
+        },
+        {
+          "type": "OneToMany",
+          "target": "Servico",
+          "field": "cliente",
+          "multiplicity": "0..*",
+          "inverse": true,
+          "nullable": true,
+          "source_file": "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/entity/Servico.java"
+        }
+      ],
+      "notes": "Representa tanto clientes quanto fornecedores. Diferenciação feita pelo campo 'origem'. Paginação implementada na consulta."
+    },
+    {
+      "name": "Produto",
+      "stereotype": "entity",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/entity/Produto.java"
+      ],
+      "table_name": "Produtos",
+      "attributes": [
+        {
+          "name": "id",
+          "type": "Integer",
+          "nullable": false,
+          "primary_key": true,
+          "generated": "IDENTITY",
+          "origin": "backend"
+        },
+        {
+          "name": "numeroSerie",
+          "type": "String",
+          "nullable": false,
+          "unique": true,
+          "origin": "backend",
+          "notes": "Identificador principal do produto"
+        },
+        {
+          "name": "aparelho",
+          "type": "String",
+          "nullable": false,
+          "origin": "backend",
+          "notes": "Tipo de aparelho (ex: Smartphone, Notebook)"
+        },
+        {
+          "name": "modelo",
+          "type": "String",
+          "nullable": true,
+          "origin": "backend"
+        },
+        {
+          "name": "cor",
+          "type": "String",
+          "nullable": true,
+          "origin": "backend"
+        },
+        {
+          "name": "observacoes",
+          "type": "String",
+          "nullable": true,
+          "origin": "backend"
+        }
+      ],
+      "relationships": [
+        {
+          "type": "ManyToOne",
+          "target": "StatusProduto",
+          "field": "status",
+          "multiplicity": "0..*:1",
+          "foreign_key": "id_status",
+          "nullable": true,
+          "source_file": "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/entity/Produto.java"
+        },
+        {
+          "type": "OneToMany",
+          "target": "Operacao",
+          "field": "produto",
+          "multiplicity": "1..*",
+          "inverse": true,
+          "source_file": "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/entity/Operacao.java"
+        },
+        {
+          "type": "OneToMany",
+          "target": "Servico",
+          "field": "produto",
+          "multiplicity": "1..*",
+          "inverse": true,
+          "source_file": "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/entity/Servico.java"
+        }
+      ],
+      "notes": "Produtos do inventário da assistência técnica. Número de série único. Status gerenciado via StatusProduto."
+    },
+    {
+      "name": "StatusProduto",
+      "stereotype": "entity",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/entity/StatusProduto.java"
+      ],
+      "table_name": "StatusProduto",
+      "attributes": [
+        {
+          "name": "id",
+          "type": "Integer",
+          "nullable": false,
+          "primary_key": true,
+          "generated": "MANUAL",
+          "origin": "backend",
+          "notes": "Chave primária manual (não auto-increment)"
+        },
+        {
+          "name": "nome",
+          "type": "String",
+          "nullable": false,
+          "origin": "backend",
+          "notes": "Exemplos: 'EM ESTOQUE', 'VENDIDO', 'ATENÇÃO'"
+        }
+      ],
+      "relationships": [
+        {
+          "type": "OneToMany",
+          "target": "Produto",
+          "field": "status",
+          "multiplicity": "1:0..*",
+          "inverse": true,
+          "source_file": "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/entity/Produto.java"
+        }
+      ],
+      "notes": "Tabela de lookup para status de produtos. Valores pré-definidos gerenciados via migrations."
+    },
+    {
+      "name": "Operacao",
+      "stereotype": "entity",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/entity/Operacao.java"
+      ],
+      "table_name": "Operacoes",
+      "attributes": [
+        {
+          "name": "id",
+          "type": "Integer",
+          "nullable": false,
+          "primary_key": true,
+          "generated": "IDENTITY",
+          "origin": "backend"
+        },
+        {
+          "name": "valor",
+          "type": "BigDecimal",
+          "nullable": false,
+          "precision": 10,
+          "scale": 2,
+          "origin": "backend",
+          "notes": "Valor monetário da operação"
+        },
+        {
+          "name": "tipo",
+          "type": "Integer",
+          "nullable": false,
+          "origin": "backend",
+          "notes": "Tipo: 0=Venda, 1=Compra"
+        },
+        {
+          "name": "observacoes",
+          "type": "String",
+          "nullable": true,
+          "origin": "backend"
+        },
+        {
+          "name": "dataHoraTransacao",
+          "type": "LocalDateTime",
+          "nullable": false,
+          "generated": "DEFAULT_SYSDATETIME",
+          "origin": "backend",
+          "notes": "Data/hora automática no insert"
+        }
+      ],
+      "relationships": [
+        {
+          "type": "ManyToOne",
+          "target": "Produto",
+          "field": "produto",
+          "multiplicity": "0..*:1",
+          "foreign_key": "id_produto",
+          "nullable": false,
+          "source_file": "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/entity/Operacao.java"
+        },
+        {
+          "type": "ManyToOne",
+          "target": "Pessoa",
+          "field": "pessoa",
+          "multiplicity": "0..*:1",
+          "foreign_key": "id_pessoa",
+          "nullable": false,
+          "source_file": "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/entity/Operacao.java"
+        },
+        {
+          "type": "ManyToOne",
+          "target": "Funcionario",
+          "field": "funcionario",
+          "multiplicity": "0..*:1",
+          "foreign_key": "id_funcionario",
+          "nullable": false,
+          "source_file": "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/entity/Operacao.java"
+        }
+      ],
+      "notes": "Registra operações de compra/venda. Permite criar produto junto com a operação. Requer validação de funcionário para edição."
+    },
+    {
+      "name": "Servico",
+      "stereotype": "entity",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/entity/Servico.java"
+      ],
+      "table_name": "Servicos",
+      "attributes": [
+        {
+          "name": "id",
+          "type": "Integer",
+          "nullable": false,
+          "primary_key": true,
+          "generated": "IDENTITY",
+          "origin": "backend"
+        },
+        {
+          "name": "tipo",
+          "type": "Integer",
+          "nullable": false,
+          "origin": "backend"
+        },
+        {
+          "name": "valor",
+          "type": "BigDecimal",
+          "nullable": false,
+          "precision": 10,
+          "scale": 2,
+          "origin": "backend"
+        },
+        {
+          "name": "dataInicio",
+          "type": "LocalDate",
+          "nullable": true,
+          "origin": "backend"
+        },
+        {
+          "name": "dataFim",
+          "type": "LocalDate",
+          "nullable": true,
+          "origin": "backend"
+        },
+        {
+          "name": "observacoes",
+          "type": "String",
+          "nullable": true,
+          "origin": "backend"
+        }
+      ],
+      "relationships": [
+        {
+          "type": "ManyToOne",
+          "target": "Produto",
+          "field": "produto",
+          "multiplicity": "0..*:1",
+          "foreign_key": "numero_serie_produto",
+          "nullable": false,
+          "source_file": "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/entity/Servico.java",
+          "notes": "FK para numero_serie (não para id)"
+        },
+        {
+          "type": "ManyToOne",
+          "target": "Pessoa",
+          "field": "cliente",
+          "multiplicity": "0..*:0..1",
+          "foreign_key": "id_cliente",
+          "nullable": true,
+          "source_file": "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/entity/Servico.java"
+        },
+        {
+          "type": "ManyToOne",
+          "target": "StatusServico",
+          "field": "status",
+          "multiplicity": "0..*:1",
+          "foreign_key": "id_status",
+          "nullable": true,
+          "source_file": "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/entity/Servico.java"
+        }
+      ],
+      "notes": "Representa serviços de manutenção. Cliente pode ser NULL. Relacionamento com Produto usa numero_serie ao invés de id."
+    },
+    {
+      "name": "StatusServico",
+      "stereotype": "entity",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/entity/StatusServico.java"
+      ],
+      "table_name": "StatusServico",
+      "attributes": [
+        {
+          "name": "id",
+          "type": "Integer",
+          "nullable": false,
+          "primary_key": true,
+          "generated": "IDENTITY",
+          "origin": "backend"
+        },
+        {
+          "name": "nome",
+          "type": "String",
+          "nullable": false,
+          "max_length": 50,
+          "origin": "backend"
+        }
+      ],
+      "relationships": [
+        {
+          "type": "OneToMany",
+          "target": "Servico",
+          "field": "status",
+          "multiplicity": "1:0..*",
+          "inverse": true,
+          "source_file": "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/entity/Servico.java"
+        }
+      ],
+      "notes": "Tabela de lookup para status de serviços de manutenção."
+    }
+  ],
+  "dtos_backend": [
+    {
+      "name": "AuthLoginRequestDTO",
+      "stereotype": "dto",
+      "purpose": "request",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/AuthLoginRequestDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "Integer",
+          "nullable": false
+        },
+        {
+          "name": "senha",
+          "type": "String",
+          "nullable": false
+        }
+      ],
+      "endpoint": "POST /api/auth/login",
+      "notes": "ID representa o perfil (1=Admin, 2=Funcionário)"
+    },
+    {
+      "name": "AuthRegisterRequestDTO",
+      "stereotype": "dto",
+      "purpose": "request",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/AuthRegisterRequestDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "senha",
+          "type": "String",
+          "nullable": false
+        }
+      ],
+      "endpoint": "POST /api/auth/register",
+      "notes": "Registra novo usuário no sistema"
+    },
+    {
+      "name": "AuthLoginResponseDTO",
+      "stereotype": "dto",
+      "purpose": "response",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/AuthLoginResponseDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "Integer",
+          "nullable": false,
+          "notes": "ID do perfil do usuário"
+        },
+        {
+          "name": "token",
+          "type": "String",
+          "nullable": false,
+          "notes": "JWT token para autenticação"
+        }
+      ],
+      "notes": "Retorno do endpoint de login"
+    },
+    {
+      "name": "AuthRegisterResponseDTO",
+      "stereotype": "dto",
+      "purpose": "response",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/AuthRegisterResponseDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "Integer",
+          "nullable": false
+        }
+      ],
+      "notes": "Retorno do endpoint de registro"
+    },
+    {
+      "name": "FuncionarioAddRequestDTO",
+      "stereotype": "dto",
+      "purpose": "request",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/FuncionarioAddRequestDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "codFuncionario",
+          "type": "String",
+          "nullable": false,
+          "validation": "@NotBlank, @Size(max=50)"
+        },
+        {
+          "name": "nome",
+          "type": "String",
+          "nullable": false,
+          "validation": "@NotBlank, @Size(max=100)"
+        },
+        {
+          "name": "cpf",
+          "type": "String",
+          "nullable": false,
+          "validation": "@NotBlank, @Size(max=20)"
+        },
+        {
+          "name": "dataNascimento",
+          "type": "LocalDate",
+          "nullable": false,
+          "validation": "@NotBlank"
+        }
+      ],
+      "endpoint": "POST /api/funcionario",
+      "notes": "Status definido automaticamente como 1 (Ativo). Apenas ADMIN pode criar."
+    },
+    {
+      "name": "FuncionarioUpdateRequestDTO",
+      "stereotype": "dto",
+      "purpose": "request",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/FuncionarioUpdateRequestDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "codFuncionario",
+          "type": "String",
+          "nullable": true,
+          "validation": "@Size(max=50)"
+        },
+        {
+          "name": "nome",
+          "type": "String",
+          "nullable": true,
+          "validation": "@Size(max=100)"
+        },
+        {
+          "name": "cpf",
+          "type": "String",
+          "nullable": true,
+          "validation": "@Size(max=20)"
+        },
+        {
+          "name": "dataNascimento",
+          "type": "LocalDate",
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type": "Integer",
+          "nullable": true,
+          "validation": "@Min(0), @Max(1)"
+        }
+      ],
+      "endpoint": "PUT /api/funcionario/{id}",
+      "notes": "Todos os campos opcionais. Apenas ADMIN pode atualizar."
+    },
+    {
+      "name": "FuncionarioResponseDTO",
+      "stereotype": "dto",
+      "purpose": "response",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/FuncionarioResponseDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "Integer",
+          "nullable": false
+        },
+        {
+          "name": "codFuncionario",
+          "type": "String",
+          "nullable": false
+        },
+        {
+          "name": "nome",
+          "type": "String",
+          "nullable": false
+        },
+        {
+          "name": "cpf",
+          "type": "String",
+          "nullable": false
+        },
+        {
+          "name": "dataNascimento",
+          "type": "LocalDate",
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type": "Integer",
+          "nullable": false
+        }
+      ],
+      "notes": "Conversão da entidade Funcionario"
+    },
+    {
+      "name": "FuncionarioBuscarResponseDTO",
+      "stereotype": "dto",
+      "purpose": "response",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/FuncionarioBuscarResponseDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "Integer",
+          "nullable": false
+        },
+        {
+          "name": "nome",
+          "type": "String",
+          "nullable": false
+        }
+      ],
+      "endpoint": "GET /api/funcionario/buscar?query={query}",
+      "notes": "DTO simplificado para autocomplete. Retorna apenas funcionários ativos."
+    },
+    {
+      "name": "PessoaAddRequestDTO",
+      "stereotype": "dto",
+      "purpose": "request",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/PessoaAddRequestDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "nome",
+          "type": "String",
+          "nullable": false,
+          "validation": "@NotBlank, @Size(max=100)"
+        },
+        {
+          "name": "cpfCnpj",
+          "type": "String",
+          "nullable": false,
+          "validation": "@NotBlank, @Size(max=20)"
+        },
+        {
+          "name": "dataNascimento",
+          "type": "LocalDate",
+          "nullable": true
+        },
+        {
+          "name": "origem",
+          "type": "String",
+          "nullable": true,
+          "validation": "@Size(max=50)"
+        }
+      ],
+      "endpoint": "POST /api/pessoa",
+      "notes": "dataNascimento obrigatório apenas para CPF (pessoa física)"
+    },
+    {
+      "name": "PessoaUpdateRequestDTO",
+      "stereotype": "dto",
+      "purpose": "request",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/PessoaUpdateRequestDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "nome",
+          "type": "String",
+          "nullable": true,
+          "validation": "@Size(max=100)"
+        },
+        {
+          "name": "cpfCnpj",
+          "type": "String",
+          "nullable": true,
+          "validation": "@Size(max=20)"
+        },
+        {
+          "name": "dataNascimento",
+          "type": "LocalDate",
+          "nullable": true
+        },
+        {
+          "name": "origem",
+          "type": "String",
+          "nullable": true,
+          "validation": "@Size(max=50)"
+        }
+      ],
+      "endpoint": "PUT /api/pessoa/{id}",
+      "notes": "Todos os campos opcionais"
+    },
+    {
+      "name": "PessoaResponseDTO",
+      "stereotype": "dto",
+      "purpose": "response",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/PessoaResponseDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "Integer",
+          "nullable": false
+        },
+        {
+          "name": "nome",
+          "type": "String",
+          "nullable": false
+        },
+        {
+          "name": "cpfCnpj",
+          "type": "String",
+          "nullable": false
+        },
+        {
+          "name": "dataNascimento",
+          "type": "LocalDate",
+          "nullable": true
+        },
+        {
+          "name": "origem",
+          "type": "String",
+          "nullable": true
+        }
+      ],
+      "notes": "Conversão da entidade Pessoa"
+    },
+    {
+      "name": "PessoaBuscarResponseDTO",
+      "stereotype": "dto",
+      "purpose": "response",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/PessoaBuscarResponseDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "Integer",
+          "nullable": false
+        },
+        {
+          "name": "nome",
+          "type": "String",
+          "nullable": false
+        },
+        {
+          "name": "cpfCnpj",
+          "type": "String",
+          "nullable": false
+        }
+      ],
+      "endpoint": "GET /api/pessoa/buscar?query={query}",
+      "notes": "DTO simplificado para autocomplete"
+    },
+    {
+      "name": "ProdutoAddRequestDTO",
+      "stereotype": "dto",
+      "purpose": "request",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/ProdutoAddRequestDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "numeroSerie",
+          "type": "String",
+          "nullable": false,
+          "validation": "@NotBlank, @Size(max=50)"
+        },
+        {
+          "name": "aparelho",
+          "type": "String",
+          "nullable": false,
+          "validation": "@NotBlank, @Size(max=50)"
+        },
+        {
+          "name": "modelo",
+          "type": "String",
+          "nullable": true,
+          "validation": "@Size(max=100)"
+        },
+        {
+          "name": "cor",
+          "type": "String",
+          "nullable": true,
+          "validation": "@Size(max=30)"
+        },
+        {
+          "name": "observacoes",
+          "type": "String",
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type": "Integer",
+          "nullable": true
+        }
+      ],
+      "endpoint": "POST /api/produto",
+      "notes": "Pode ser usado dentro de OperacaoAddRequestDTO para criar produto junto com operação"
+    },
+    {
+      "name": "ProdutoUpdateRequestDTO",
+      "stereotype": "dto",
+      "purpose": "request",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/ProdutoUpdateRequestDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "Integer",
+          "nullable": false
+        },
+        {
+          "name": "numeroSerie",
+          "type": "String",
+          "nullable": true,
+          "validation": "@Size(max=50)"
+        },
+        {
+          "name": "aparelho",
+          "type": "String",
+          "nullable": true,
+          "validation": "@Size(max=50)"
+        },
+        {
+          "name": "modelo",
+          "type": "String",
+          "nullable": true,
+          "validation": "@Size(max=100)"
+        },
+        {
+          "name": "cor",
+          "type": "String",
+          "nullable": true,
+          "validation": "@Size(max=30)"
+        },
+        {
+          "name": "observacoes",
+          "type": "String",
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type": "Integer",
+          "nullable": true
+        }
+      ],
+      "endpoint": "PUT /api/produto/{id}",
+      "notes": "Todos os campos opcionais exceto id"
+    },
+    {
+      "name": "ProdutoResponseDTO",
+      "stereotype": "dto",
+      "purpose": "response",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/ProdutoResponseDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "Integer",
+          "nullable": false
+        },
+        {
+          "name": "numeroSerie",
+          "type": "String",
+          "nullable": false
+        },
+        {
+          "name": "aparelho",
+          "type": "String",
+          "nullable": false
+        },
+        {
+          "name": "modelo",
+          "type": "String",
+          "nullable": true
+        },
+        {
+          "name": "cor",
+          "type": "String",
+          "nullable": true
+        },
+        {
+          "name": "observacoes",
+          "type": "String",
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type": "String",
+          "nullable": true,
+          "inferred": true,
+          "notes": "Retorna nome do status (String) ao invés do ID"
+        }
+      ],
+      "notes": "Conversão da entidade Produto. Status convertido para nome."
+    },
+    {
+      "name": "ProdutoBuscarResponseDTO",
+      "stereotype": "dto",
+      "purpose": "response",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/ProdutoBuscarResponseDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "Integer",
+          "nullable": false
+        },
+        {
+          "name": "numeroSerie",
+          "type": "String",
+          "nullable": false
+        },
+        {
+          "name": "aparelho",
+          "type": "String",
+          "nullable": false
+        },
+        {
+          "name": "modelo",
+          "type": "String",
+          "nullable": true
+        }
+      ],
+      "endpoint": "GET /api/produto/buscar?query={query}",
+      "notes": "DTO simplificado para autocomplete"
+    },
+    {
+      "name": "ProdutoListResponseDTO",
+      "stereotype": "dto",
+      "purpose": "response",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/ProdutoListResponseDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "items",
+          "type": "List<ProdutoItemDTO>",
+          "nullable": false
+        },
+        {
+          "name": "metadata",
+          "type": "PaginacaoMetadataDTO",
+          "nullable": false
+        }
+      ],
+      "endpoint": "GET /api/produto?page={page}&size={size}",
+      "notes": "DTO composto para listagem paginada"
+    },
+    {
+      "name": "ProdutoItemDTO",
+      "stereotype": "dto",
+      "purpose": "response",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/ProdutoListResponseDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "numeroSerie",
+          "type": "String",
+          "nullable": false
+        },
+        {
+          "name": "aparelho",
+          "type": "String",
+          "nullable": false
+        },
+        {
+          "name": "modelo",
+          "type": "String",
+          "nullable": true
+        },
+        {
+          "name": "observacoes",
+          "type": "String",
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type": "Integer",
+          "nullable": true,
+          "notes": "Retorna ID do status"
+        },
+        {
+          "name": "cor",
+          "type": "String",
+          "nullable": true
+        }
+      ],
+      "notes": "DTO interno usado em ProdutoListResponseDTO. Não inclui 'id'."
+    },
+    {
+      "name": "PaginacaoMetadataDTO",
+      "stereotype": "dto",
+      "purpose": "response",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/ProdutoListResponseDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "totalItems",
+          "type": "Long",
+          "nullable": false
+        },
+        {
+          "name": "totalPages",
+          "type": "Integer",
+          "nullable": false
+        },
+        {
+          "name": "currentPage",
+          "type": "Integer",
+          "nullable": false
+        },
+        {
+          "name": "pageSize",
+          "type": "Integer",
+          "nullable": false
+        }
+      ],
+      "notes": "DTO reutilizável para metadados de paginação"
+    },
+    {
+      "name": "ProdutoStatusDTO",
+      "stereotype": "dto",
+      "purpose": "response",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/ProdutoStatusDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "Integer",
+          "nullable": false
+        },
+        {
+          "name": "nome",
+          "type": "String",
+          "nullable": false
+        }
+      ],
+      "endpoint": "GET /api/produto/status",
+      "notes": "Lista todos os status possíveis para produtos"
+    },
+    {
+      "name": "OperacaoAddRequestDTO",
+      "stereotype": "dto",
+      "purpose": "request",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/OperacaoAddRequestDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "numeroSerieProduto",
+          "type": "String",
+          "nullable": true,
+          "validation": "@Size(max=50)",
+          "notes": "Pode ser null se produto for criado junto"
+        },
+        {
+          "name": "valor",
+          "type": "BigDecimal",
+          "nullable": false,
+          "validation": "@NotBlank"
+        },
+        {
+          "name": "idPessoa",
+          "type": "Integer",
+          "nullable": false,
+          "validation": "@NotBlank"
+        },
+        {
+          "name": "idFuncionario",
+          "type": "Integer",
+          "nullable": false,
+          "validation": "@NotBlank"
+        },
+        {
+          "name": "tipo",
+          "type": "Integer",
+          "nullable": false,
+          "validation": "@NotBlank",
+          "notes": "0=Venda, 1=Compra"
+        },
+        {
+          "name": "observacoes",
+          "type": "String",
+          "nullable": true
+        },
+        {
+          "name": "produto",
+          "type": "ProdutoAddRequestDTO",
+          "nullable": true,
+          "notes": "Opcional: permite criar produto junto com operação"
+        }
+      ],
+      "endpoint": "POST /api/operacao",
+      "notes": "Permite criar produto automaticamente se não existir"
+    },
+    {
+      "name": "OperacaoUpdateRequestDTO",
+      "stereotype": "dto",
+      "purpose": "request",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/OperacaoUpdateRequestDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "valor",
+          "type": "BigDecimal",
+          "nullable": true
+        },
+        {
+          "name": "tipo",
+          "type": "Integer",
+          "nullable": true
+        },
+        {
+          "name": "observacoes",
+          "type": "String",
+          "nullable": true
+        }
+      ],
+      "endpoint": "PUT /api/operacao/{id}",
+      "notes": "Requer validação de funcionário antes de permitir edição"
+    },
+    {
+      "name": "OperacaoResponseDTO",
+      "stereotype": "dto",
+      "purpose": "response",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/OperacaoResponseDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "Integer",
+          "nullable": false
+        },
+        {
+          "name": "numeroSerieProduto",
+          "type": "String",
+          "nullable": false
+        },
+        {
+          "name": "valor",
+          "type": "BigDecimal",
+          "nullable": false
+        },
+        {
+          "name": "idPessoa",
+          "type": "Integer",
+          "nullable": false
+        },
+        {
+          "name": "idFuncionario",
+          "type": "Integer",
+          "nullable": false
+        },
+        {
+          "name": "tipo",
+          "type": "Integer",
+          "nullable": false
+        },
+        {
+          "name": "observacoes",
+          "type": "String",
+          "nullable": true
+        },
+        {
+          "name": "dataHoraTransacao",
+          "type": "LocalDateTime",
+          "nullable": false,
+          "format": "dd/MM/yyyy HH:mm:ss",
+          "notes": "Formatado com @JsonFormat"
+        }
+      ],
+      "notes": "Retorna IDs ao invés de objetos completos (divergência com frontend)"
+    },
+    {
+      "name": "ValidarFuncionarioRequestDTO",
+      "stereotype": "dto",
+      "purpose": "request",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/ValidarFuncionarioRequestDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "codigoFuncionario",
+          "type": "String",
+          "nullable": false
+        },
+        {
+          "name": "idOperacao",
+          "type": "Integer",
+          "nullable": true
+        }
+      ],
+      "endpoint": "POST /api/operacao/validar-funcionario",
+      "notes": "Valida funcionário antes de permitir edição de operação"
+    },
+    {
+      "name": "ValidarFuncionarioResponseDTO",
+      "stereotype": "dto",
+      "purpose": "response",
+      "source_files": [
+        "Codigo/Back/vaztech/src/main/java/br/com/vaztech/vaztech/dto/ValidarFuncionarioResponseDTO.java"
+      ],
+      "attributes": [
+        {
+          "name": "autorizado",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "mensagem",
+          "type": "String",
+          "nullable": false
+        },
+        {
+          "name": "codigoFuncionario",
+          "type": "String",
+          "nullable": false
+        }
+      ],
+      "notes": "Retorna 200 se autorizado, 401 se não autorizado"
+    }
+  ],
+  "models_frontend": [
+    {
+      "name": "PerfisAuth",
+      "stereotype": "enum",
+      "origin": "frontend-only",
+      "source_files": [
+        "Codigo/Front/Vaztech/src/app/models/auth.models.ts"
+      ],
+      "values": [
+        {
+          "name": "ADMIN",
+          "value": 1
+        },
+        {
+          "name": "FUNCIONARIO",
+          "value": 2
+        }
+      ],
+      "notes": "Enum TypeScript para perfis de autenticação"
+    },
+    {
+      "name": "AuthResponse",
+      "stereotype": "model",
+      "origin": "frontend",
+      "source_files": [
+        "Codigo/Front/Vaztech/src/app/models/auth.models.ts"
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "PerfisAuth",
+          "nullable": false,
+          "notes": "Usa enum ao invés de number"
+        },
+        {
+          "name": "token",
+          "type": "string",
+          "nullable": false
+        }
+      ],
+      "notes": "Corresponde a AuthLoginResponseDTO do backend"
+    },
+    {
+      "name": "FuncionarioResponse",
+      "stereotype": "model",
+      "origin": "frontend",
+      "source_files": [
+        "Codigo/Front/Vaztech/src/app/models/funcionario.model.ts"
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "number",
+          "nullable": false
+        },
+        {
+          "name": "nome",
+          "type": "string",
+          "nullable": false
+        },
+        {
+          "name": "dataNascimento",
+          "type": "Date",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type": "number",
+          "nullable": false
+        },
+        {
+          "name": "cpf",
+          "type": "string",
+          "nullable": false
+        }
+      ],
+      "divergence": true,
+      "notes": "DIVERGÊNCIA: Backend tem 'codFuncionario' mas frontend não usa esse campo"
+    },
+    {
+      "name": "CadastrarFuncionarioBody",
+      "stereotype": "model",
+      "origin": "frontend",
+      "source_files": [
+        "Codigo/Front/Vaztech/src/app/models/funcionario.model.ts"
+      ],
+      "attributes": [
+        {
+          "name": "nome",
+          "type": "string",
+          "nullable": false
+        },
+        {
+          "name": "dataNascimento",
+          "type": "Date",
+          "nullable": false
+        },
+        {
+          "name": "cpf",
+          "type": "string",
+          "nullable": false
+        },
+        {
+          "name": "codFuncionario",
+          "type": "number",
+          "nullable": false,
+          "inferred": true,
+          "notes": "Backend espera String, frontend envia number"
+        }
+      ],
+      "notes": "Corresponde a FuncionarioAddRequestDTO"
+    },
+    {
+      "name": "AlterarDadosPessoaisFuncionarioBody",
+      "stereotype": "model",
+      "origin": "frontend",
+      "source_files": [
+        "Codigo/Front/Vaztech/src/app/models/funcionario.model.ts"
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "number",
+          "nullable": false
+        },
+        {
+          "name": "nome",
+          "type": "string",
+          "nullable": false
+        },
+        {
+          "name": "dataNascimento",
+          "type": "Date",
+          "nullable": false
+        },
+        {
+          "name": "cpf",
+          "type": "string",
+          "nullable": false
+        }
+      ],
+      "notes": "Usado para editar dados pessoais (sem codFuncionario e status)"
+    },
+    {
+      "name": "PessoaResponse",
+      "stereotype": "model",
+      "origin": "frontend",
+      "source_files": [
+        "Codigo/Front/Vaztech/src/app/models/pessoa.model.ts"
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "number",
+          "nullable": false
+        },
+        {
+          "name": "nome",
+          "type": "string",
+          "nullable": false
+        },
+        {
+          "name": "cpfCnpj",
+          "type": "string",
+          "nullable": false
+        },
+        {
+          "name": "dataNascimento",
+          "type": "Date | null",
+          "nullable": true
+        },
+        {
+          "name": "origem",
+          "type": "string | null",
+          "nullable": true
+        }
+      ],
+      "notes": "Corresponde exatamente a PessoaResponseDTO"
+    },
+    {
+      "name": "CadastrarPessoaBody",
+      "stereotype": "model",
+      "origin": "frontend",
+      "source_files": [
+        "Codigo/Front/Vaztech/src/app/models/pessoa.model.ts"
+      ],
+      "attributes": [
+        {
+          "name": "nome",
+          "type": "string",
+          "nullable": false
+        },
+        {
+          "name": "cpfCnpj",
+          "type": "string",
+          "nullable": false
+        },
+        {
+          "name": "dataNascimento",
+          "type": "Date | null",
+          "nullable": true
+        },
+        {
+          "name": "origem",
+          "type": "string | null",
+          "nullable": true
+        }
+      ],
+      "notes": "Corresponde a PessoaAddRequestDTO"
+    },
+    {
+      "name": "AlterarPessoaBody",
+      "stereotype": "model",
+      "origin": "frontend",
+      "source_files": [
+        "Codigo/Front/Vaztech/src/app/models/pessoa.model.ts"
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "number",
+          "nullable": false
+        },
+        {
+          "name": "nome",
+          "type": "string",
+          "nullable": false
+        },
+        {
+          "name": "cpfCnpj",
+          "type": "string",
+          "nullable": false
+        },
+        {
+          "name": "dataNascimento",
+          "type": "Date | null",
+          "nullable": true
+        },
+        {
+          "name": "origem",
+          "type": "string | null",
+          "nullable": true
+        }
+      ],
+      "notes": "Usado para editar pessoa"
+    },
+    {
+      "name": "PessoasReqDTO",
+      "stereotype": "model",
+      "origin": "frontend",
+      "source_files": [
+        "Codigo/Front/Vaztech/src/app/models/pessoa.model.ts"
+      ],
+      "attributes": [
+        {
+          "name": "content",
+          "type": "PessoaResponse[]",
+          "nullable": false,
+          "notes": "Array de pessoas retornadas"
+        },
+        {
+          "name": "totalElements",
+          "type": "number",
+          "nullable": false,
+          "notes": "Total de registros no backend"
+        }
+      ],
+      "notes": "Wrapper para resposta paginada do backend (Page<Pessoa>)"
+    },
+    {
+      "name": "Produto",
+      "stereotype": "model",
+      "origin": "frontend",
+      "source_files": [
+        "Codigo/Front/Vaztech/src/app/models/produto.model.ts"
+      ],
+      "attributes": [
+        {
+          "name": "numeroSerie",
+          "type": "string",
+          "nullable": false
+        },
+        {
+          "name": "aparelho",
+          "type": "string",
+          "nullable": false
+        },
+        {
+          "name": "modelo",
+          "type": "string",
+          "nullable": true,
+          "optional": true
+        },
+        {
+          "name": "observacoes",
+          "type": "string",
+          "nullable": true,
+          "optional": true
+        },
+        {
+          "name": "status",
+          "type": "number",
+          "nullable": true,
+          "optional": true
+        },
+        {
+          "name": "cor",
+          "type": "string",
+          "nullable": true,
+          "optional": true
+        }
+      ],
+      "divergence": true,
+      "notes": "DIVERGÊNCIA: Backend tem campo 'id' mas frontend não usa"
+    },
+    {
+      "name": "ProdutosReqDTO",
+      "stereotype": "model",
+      "origin": "frontend",
+      "source_files": [
+        "Codigo/Front/Vaztech/src/app/models/produto.model.ts"
+      ],
+      "attributes": [
+        {
+          "name": "items",
+          "type": "Produto[]",
+          "nullable": false
+        },
+        {
+          "name": "metadata",
+          "type": "ProdutoMetadata",
+          "nullable": false
+        }
+      ],
+      "notes": "Corresponde a ProdutoListResponseDTO"
+    },
+    {
+      "name": "ProdutoStatus",
+      "stereotype": "model",
+      "origin": "frontend",
+      "source_files": [
+        "Codigo/Front/Vaztech/src/app/models/produto.model.ts"
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "number",
+          "nullable": false
+        },
+        {
+          "name": "nome",
+          "type": "string",
+          "nullable": false
+        }
+      ],
+      "notes": "Corresponde a ProdutoStatusDTO"
+    },
+    {
+      "name": "Operacao",
+      "stereotype": "model",
+      "origin": "frontend",
+      "source_files": [
+        "Codigo/Front/Vaztech/src/app/models/operacao.model.ts"
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "number",
+          "nullable": false
+        },
+        {
+          "name": "produto",
+          "type": "ProdutoOperacao",
+          "nullable": false,
+          "notes": "Objeto aninhado ao invés de ID"
+        },
+        {
+          "name": "funcionario",
+          "type": "FuncionarioOperacao",
+          "nullable": false,
+          "notes": "Objeto aninhado ao invés de ID"
+        },
+        {
+          "name": "pessoa",
+          "type": "PessoaOperacao",
+          "nullable": false,
+          "notes": "Objeto aninhado ao invés de ID"
+        },
+        {
+          "name": "valor",
+          "type": "number",
+          "nullable": false
+        },
+        {
+          "name": "tipo",
+          "type": "0 | 1",
+          "nullable": false,
+          "notes": "Union type no TypeScript"
+        },
+        {
+          "name": "observacoes",
+          "type": "string",
+          "nullable": false
+        },
+        {
+          "name": "dataHoraTransacao",
+          "type": "Date",
+          "nullable": false
+        }
+      ],
+      "divergence": true,
+      "notes": "DIVERGÊNCIA CRÍTICA: Backend retorna IDs, frontend espera objetos aninhados"
+    },
+    {
+      "name": "ProdutoOperacao",
+      "stereotype": "model",
+      "origin": "frontend-only",
+      "source_files": [
+        "Codigo/Front/Vaztech/src/app/models/operacao.model.ts"
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "number",
+          "nullable": false
+        },
+        {
+          "name": "numeroSerie",
+          "type": "string",
+          "nullable": false
+        },
+        {
+          "name": "aparelho",
+          "type": "string",
+          "nullable": false
+        },
+        {
+          "name": "modelo",
+          "type": "string",
+          "nullable": false
+        }
+      ],
+      "notes": "Sub-objeto usado em Operacao (frontend)"
+    },
+    {
+      "name": "FuncionarioOperacao",
+      "stereotype": "model",
+      "origin": "frontend-only",
+      "source_files": [
+        "Codigo/Front/Vaztech/src/app/models/operacao.model.ts"
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "number",
+          "nullable": false
+        },
+        {
+          "name": "nome",
+          "type": "string",
+          "nullable": false
+        }
+      ],
+      "notes": "Sub-objeto usado em Operacao (frontend)"
+    },
+    {
+      "name": "PessoaOperacao",
+      "stereotype": "model",
+      "origin": "frontend-only",
+      "source_files": [
+        "Codigo/Front/Vaztech/src/app/models/operacao.model.ts"
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "number",
+          "nullable": false
+        },
+        {
+          "name": "nome",
+          "type": "string",
+          "nullable": false
+        },
+        {
+          "name": "cpfCnpj",
+          "type": "string",
+          "nullable": false
+        }
+      ],
+      "notes": "Sub-objeto usado em Operacao (frontend)"
+    },
+    {
+      "name": "AdicionarOperacaoDTO",
+      "stereotype": "model",
+      "origin": "frontend",
+      "source_files": [
+        "Codigo/Front/Vaztech/src/app/models/operacao.model.ts"
+      ],
+      "attributes": [
+        {
+          "name": "numeroSerieProduto",
+          "type": "string | null",
+          "nullable": true
+        },
+        {
+          "name": "valor",
+          "type": "number",
+          "nullable": false
+        },
+        {
+          "name": "idPessoa",
+          "type": "number",
+          "nullable": false
+        },
+        {
+          "name": "idFuncionario",
+          "type": "number",
+          "nullable": false
+        },
+        {
+          "name": "tipo",
+          "type": "0 | 1",
+          "nullable": false
+        },
+        {
+          "name": "observacoes",
+          "type": "string",
+          "nullable": true,
+          "optional": true
+        },
+        {
+          "name": "produto",
+          "type": "Produto",
+          "nullable": true,
+          "optional": true
+        }
+      ],
+      "notes": "Corresponde a OperacaoAddRequestDTO"
+    },
+    {
+      "name": "EditarOperacaoDTO",
+      "stereotype": "model",
+      "origin": "frontend",
+      "source_files": [
+        "Codigo/Front/Vaztech/src/app/models/operacao.model.ts"
+      ],
+      "attributes": [
+        {
+          "name": "valor",
+          "type": "number",
+          "nullable": false
+        },
+        {
+          "name": "tipo",
+          "type": "0 | 1",
+          "nullable": false
+        },
+        {
+          "name": "observacoes",
+          "type": "string",
+          "nullable": true,
+          "optional": true
+        }
+      ],
+      "notes": "Corresponde a OperacaoUpdateRequestDTO"
+    }
+  ],
+  "divergences": [
+    {
+      "entity": "Funcionario",
+      "type": "attribute_missing_in_frontend",
+      "description": "Backend possui campo 'codFuncionario' (String) que não aparece no FuncionarioResponse do frontend",
+      "severity": "medium",
+      "recommendation": "Verificar se frontend deve exibir código do funcionário ou se é campo interno"
+    },
+    {
+      "entity": "Funcionario",
+      "type": "type_mismatch",
+      "description": "CadastrarFuncionarioBody do frontend envia 'codFuncionario' como number, backend espera String",
+      "severity": "high",
+      "recommendation": "Alinhar tipo no frontend para string ou converter no backend"
+    },
+    {
+      "entity": "Produto",
+      "type": "attribute_missing_in_frontend",
+      "description": "Backend possui campo 'id' (Integer) mas frontend usa apenas 'numeroSerie' como identificador",
+      "severity": "medium",
+      "recommendation": "Avaliar se frontend deve usar 'id' para melhor performance e consistência"
+    },
+    {
+      "entity": "Operacao",
+      "type": "structure_mismatch",
+      "description": "Backend retorna IDs simples (idPessoa, idFuncionario, numeroSerieProduto) mas frontend espera objetos aninhados completos (ProdutoOperacao, FuncionarioOperacao, PessoaOperacao)",
+      "severity": "critical",
+      "recommendation": "Criar OperacaoDetailResponseDTO no backend com objetos aninhados OU frontend fazer queries separadas para buscar detalhes"
+    },
+    {
+      "entity": "Data Types",
+      "type": "type_conversion",
+      "description": "Backend usa LocalDate/LocalDateTime, frontend usa Date (JavaScript). Conversão ocorre automaticamente via JSON",
+      "severity": "low",
+      "recommendation": "Documentar formato esperado (ISO 8601) e garantir timezone consistency"
+    },
+    {
+      "entity": "Numeric Types",
+      "type": "type_conversion",
+      "description": "Backend usa Integer/BigDecimal, frontend usa number genérico",
+      "severity": "low",
+      "recommendation": "Documentar precisão e limites, especialmente para valores monetários"
+    }
+  ],
+  "security_notes": [
+    "Autenticação JWT via Bearer Token (gerado por TokenService com HMAC256)",
+    "Perfis: ADMIN (id=1) com acesso total, FUNCIONARIO (id=2) com acesso restrito",
+    "Funcionários só podem ser criados/editados por ADMIN (validado em FuncionarioService)",
+    "Edição de operações requer validação de código de funcionário (endpoint /validar-funcionario)",
+    "Senhas criptografadas com BCrypt antes de persistência",
+    "Token expira após 9 horas (configurado em TokenService)",
+    "Interceptor no frontend adiciona token automaticamente em todas as requisições"
+  ],
+  "validation_notes": [
+    "Backend usa Bean Validation (@NotBlank, @Size, @Min, @Max)",
+    "Frontend usa Angular Reactive Forms com validações síncronas",
+    "CPF/CNPJ validado apenas por tamanho (11 ou 14 dígitos), não há validação de dígito verificador",
+    "Data de nascimento obrigatória apenas para CPF (pessoa física)",
+    "Máscara de CPF/CNPJ aplicada via diretiva CpfCnpjMaskDirective no frontend",
+    "Status de funcionário limitado a 0 (inativo) ou 1 (ativo)"
+  ],
+  "pagination_notes": [
+    "Paginação implementada em Pessoa (GET /api/pessoa/listar) e Produto (GET /api/produto)",
+    "Backend usa Spring Data Page<T> com PageRequest",
+    "Frontend recebe estrutura com 'items' e 'metadata' (totalItems, totalPages, currentPage, pageSize)",
+    "Padrão: page=0, size=10",
+    "Pessoa usa paginação com busca opcional (searchTerm)",
+    "Produto usa paginação simples sem filtros"
+  ]
+}

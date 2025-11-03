@@ -1,0 +1,675 @@
+@startuml Vaztech - Diagrama de Classes Completo
+
+' ========================================
+' CONFIGURAÇÕES GERAIS
+' ========================================
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam groupInheritance 2
+skinparam shadowing false
+
+' Cores para diferenciar backend e frontend
+skinparam class {
+    BackgroundColor<<entity>> LightYellow
+    BackgroundColor<<dto>> LightBlue
+    BackgroundColor<<service>> LightGreen
+    BackgroundColor<<frontend>> Wheat
+    BorderColor Black
+    ArrowColor Black
+}
+
+' ========================================
+' PACOTE BACKEND - ENTIDADES
+' ========================================
+package "Backend - Entidades (JPA)" #F0F0F0 {
+
+    class Usuario <<entity>> {
+        - id: Integer {PK, Identity}
+        - senha: String
+        __
+        + getId(): Integer
+        + getSenha(): String
+        + setId(Integer): void
+        + setSenha(String): void
+    }
+    note right of Usuario
+        Entidade de autenticação
+        Senha armazenada criptografada (BCrypt)
+        Tabela: Usuarios
+    end note
+
+    class Funcionario <<entity>> {
+        - id: Integer {PK, Identity}
+        - codFuncionario: String {Unique, Max:50}
+        - nome: String {Max:100}
+        - cpf: String {Unique, Max:20}
+        - dataNascimento: LocalDate
+        - status: Integer
+        __
+        + getId(): Integer
+        + getCodFuncionario(): String
+        + getNome(): String
+        + getCpf(): String
+        + getDataNascimento(): LocalDate
+        + getStatus(): Integer
+    }
+    note right of Funcionario
+        Status: 1=Ativo, 0=Inativo
+        Tabela: Funcionarios
+        CPF único no sistema
+    end note
+
+    class Pessoa <<entity>> {
+        - id: Integer {PK, Identity}
+        - nome: String {Max:100}
+        - cpfCnpj: String {Unique, Max:20}
+        - dataNascimento: LocalDate {Nullable}
+        - origem: String {Max:50, Nullable}
+        __
+        + getId(): Integer
+        + getNome(): String
+        + getCpfCnpj(): String
+        + getDataNascimento(): LocalDate
+        + getOrigem(): String
+    }
+    note right of Pessoa
+        Representa Cliente ou Fornecedor
+        Tabela: Pessoas
+        CPF/CNPJ único no sistema
+        Origem indica tipo (cliente/fornecedor)
+    end note
+
+    class Produto <<entity>> {
+        - id: Integer {PK, Identity}
+        - numeroSerie: String {Unique}
+        - aparelho: String
+        - modelo: String {Nullable}
+        - cor: String {Nullable}
+        - observacoes: String {Nullable}
+        - status: StatusProduto
+        __
+        + getId(): Integer
+        + getNumeroSerie(): String
+        + getAparelho(): String
+        + getModelo(): String
+        + getCor(): String
+        + getObservacoes(): String
+        + getStatus(): StatusProduto
+    }
+    note right of Produto
+        Tabela: Produtos
+        Número de série único
+        Relacionado com StatusProduto
+    end note
+
+    class StatusProduto <<entity>> {
+        - id: Integer {PK}
+        - nome: String
+        __
+        + getId(): Integer
+        + getNome(): String
+    }
+    note right of StatusProduto
+        Tabela: StatusProduto
+        Exemplos: "EM ESTOQUE", "VENDIDO", "ATENÇÃO"
+        Chave primária manual (não identity)
+    end note
+
+    class Operacao <<entity>> {
+        - id: Integer {PK, Identity}
+        - produto: Produto
+        - valor: BigDecimal {Precision:10, Scale:2}
+        - pessoa: Pessoa
+        - funcionario: Funcionario
+        - tipo: Integer
+        - observacoes: String {Nullable}
+        - dataHoraTransacao: LocalDateTime
+        __
+        + getId(): Integer
+        + getProduto(): Produto
+        + getValor(): BigDecimal
+        + getPessoa(): Pessoa
+        + getFuncionario(): Funcionario
+        + getTipo(): Integer
+        + getObservacoes(): String
+        + getDataHoraTransacao(): LocalDateTime
+    }
+    note right of Operacao
+        Tabela: Operacoes
+        Tipo: 0=Venda, 1=Compra
+        Data/Hora automática no insert
+        Representa transações de compra/venda
+    end note
+
+    class Servico <<entity>> {
+        - id: Integer {PK, Identity}
+        - produto: Produto
+        - tipo: Integer
+        - valor: BigDecimal {Precision:10, Scale:2}
+        - cliente: Pessoa {Nullable}
+        - dataInicio: LocalDate {Nullable}
+        - dataFim: LocalDate {Nullable}
+        - observacoes: String {Nullable}
+        - status: StatusServico
+        __
+        + getId(): Integer
+        + getProduto(): Produto
+        + getTipo(): Integer
+        + getValor(): BigDecimal
+        + getCliente(): Pessoa
+        + getDataInicio(): LocalDate
+        + getDataFim(): LocalDate
+        + getObservacoes(): String
+        + getStatus(): StatusServico
+    }
+    note right of Servico
+        Tabela: Servicos
+        Representa serviços de manutenção
+        Cliente pode ser NULL
+    end note
+
+    class StatusServico <<entity>> {
+        - id: Integer {PK, Identity}
+        - nome: String {Max:50}
+        __
+        + getId(): Integer
+        + getNome(): String
+    }
+    note right of StatusServico
+        Tabela: StatusServico
+        Status de serviços de manutenção
+    end note
+}
+
+' ========================================
+' PACOTE BACKEND - DTOs REQUEST
+' ========================================
+package "Backend - DTOs Request" #E0F0FF {
+
+    class AuthLoginRequestDTO <<dto>> {
+        + id: Integer
+        + senha: String
+    }
+
+    class AuthRegisterRequestDTO <<dto>> {
+        + senha: String
+    }
+
+    class FuncionarioAddRequestDTO <<dto>> {
+        + codFuncionario: String {NotBlank, Max:50}
+        + nome: String {NotBlank, Max:100}
+        + cpf: String {NotBlank, Max:20}
+        + dataNascimento: LocalDate {NotBlank}
+    }
+
+    class FuncionarioUpdateRequestDTO <<dto>> {
+        + codFuncionario: String {Max:50}
+        + nome: String {Max:100}
+        + cpf: String {Max:20}
+        + dataNascimento: LocalDate
+        + status: Integer {Min:0, Max:1}
+    }
+
+    class PessoaAddRequestDTO <<dto>> {
+        + nome: String {NotBlank, Max:100}
+        + cpfCnpj: String {NotBlank, Max:20}
+        + dataNascimento: LocalDate
+        + origem: String {Max:50}
+    }
+
+    class PessoaUpdateRequestDTO <<dto>> {
+        + nome: String {Max:100}
+        + cpfCnpj: String {Max:20}
+        + dataNascimento: LocalDate
+        + origem: String {Max:50}
+    }
+
+    class ProdutoAddRequestDTO <<dto>> {
+        + numeroSerie: String {NotBlank, Max:50}
+        + aparelho: String {NotBlank, Max:50}
+        + modelo: String {Max:100}
+        + cor: String {Max:30}
+        + observacoes: String
+        + status: Integer
+    }
+
+    class ProdutoUpdateRequestDTO <<dto>> {
+        + id: Integer
+        + numeroSerie: String {Max:50}
+        + aparelho: String {Max:50}
+        + modelo: String {Max:100}
+        + cor: String {Max:30}
+        + observacoes: String
+        + status: Integer
+    }
+
+    class OperacaoAddRequestDTO <<dto>> {
+        + numeroSerieProduto: String {Max:50}
+        + valor: BigDecimal {NotBlank}
+        + idPessoa: Integer {NotBlank}
+        + idFuncionario: Integer {NotBlank}
+        + tipo: Integer {NotBlank}
+        + observacoes: String
+        + produto: ProdutoAddRequestDTO
+    }
+    note right of OperacaoAddRequestDTO
+        Permite criar produto junto
+        com a operação (campo opcional)
+    end note
+
+    class OperacaoUpdateRequestDTO <<dto>> {
+        + valor: BigDecimal
+        + tipo: Integer
+        + observacoes: String
+    }
+
+    class ValidarFuncionarioRequestDTO <<dto>> {
+        + codigoFuncionario: String
+        + idOperacao: Integer
+    }
+}
+
+' ========================================
+' PACOTE BACKEND - DTOs RESPONSE
+' ========================================
+package "Backend - DTOs Response" #E0FFE0 {
+
+    class AuthLoginResponseDTO <<dto>> {
+        + id: Integer
+        + token: String
+    }
+
+    class AuthRegisterResponseDTO <<dto>> {
+        + id: Integer
+    }
+
+    class FuncionarioResponseDTO <<dto>> {
+        + id: Integer
+        + codFuncionario: String
+        + nome: String
+        + cpf: String
+        + dataNascimento: LocalDate
+        + status: Integer
+    }
+
+    class FuncionarioBuscarResponseDTO <<dto>> {
+        + id: Integer
+        + nome: String
+    }
+
+    class PessoaResponseDTO <<dto>> {
+        + id: Integer
+        + nome: String
+        + cpfCnpj: String
+        + dataNascimento: LocalDate
+        + origem: String
+    }
+
+    class PessoaBuscarResponseDTO <<dto>> {
+        + id: Integer
+        + nome: String
+        + cpfCnpj: String
+    }
+
+    class ProdutoResponseDTO <<dto>> {
+        + id: Integer
+        + numeroSerie: String
+        + aparelho: String
+        + modelo: String
+        + cor: String
+        + observacoes: String
+        + status: String
+    }
+    note right of ProdutoResponseDTO
+        Status retorna nome (String)
+        ao invés do ID
+    end note
+
+    class ProdutoBuscarResponseDTO <<dto>> {
+        + id: Integer
+        + numeroSerie: String
+        + aparelho: String
+        + modelo: String
+    }
+
+    class ProdutoListResponseDTO <<dto>> {
+        + items: List<ProdutoItemDTO>
+        + metadata: PaginacaoMetadataDTO
+    }
+
+    class ProdutoItemDTO <<dto>> {
+        + numeroSerie: String
+        + aparelho: String
+        + modelo: String
+        + observacoes: String
+        + status: Integer
+        + cor: String
+    }
+    note right of ProdutoItemDTO
+        DTO interno usado em
+        ProdutoListResponseDTO
+    end note
+
+    class PaginacaoMetadataDTO <<dto>> {
+        + totalItems: Long
+        + totalPages: Integer
+        + currentPage: Integer
+        + pageSize: Integer
+    }
+
+    class ProdutoStatusDTO <<dto>> {
+        + id: Integer
+        + nome: String
+    }
+
+    class OperacaoResponseDTO <<dto>> {
+        + id: Integer
+        + numeroSerieProduto: String
+        + valor: BigDecimal
+        + idPessoa: Integer
+        + idFuncionario: Integer
+        + tipo: Integer
+        + observacoes: String
+        + dataHoraTransacao: LocalDateTime
+    }
+    note right of OperacaoResponseDTO
+        Retorna IDs ao invés dos objetos completos
+        Data formatada: "dd/MM/yyyy HH:mm:ss"
+    end note
+
+    class ValidarFuncionarioResponseDTO <<dto>> {
+        + autorizado: boolean
+        + mensagem: String
+        + codigoFuncionario: String
+    }
+}
+
+' ========================================
+' PACOTE FRONTEND - MODELS
+' ========================================
+package "Frontend - Models (TypeScript)" #FFE8D0 {
+
+    enum PerfisAuth <<frontend>> {
+        ADMIN = 1
+        FUNCIONARIO = 2
+    }
+
+    class AuthResponse <<frontend>> {
+        + id: PerfisAuth
+        + token: string
+    }
+
+    class FuncionarioResponse <<frontend>> {
+        + id: number
+        + nome: string
+        + dataNascimento: Date
+        + status: number
+        + cpf: string
+    }
+    note right of FuncionarioResponse
+        Divergência: backend tem codFuncionario
+        Frontend não exibe esse campo
+    end note
+
+    class CadastrarFuncionarioBody <<frontend>> {
+        + nome: string
+        + dataNascimento: Date
+        + cpf: string
+        + codFuncionario: number
+    }
+
+    class AlterarDadosPessoaisFuncionarioBody <<frontend>> {
+        + id: number
+        + nome: string
+        + dataNascimento: Date
+        + cpf: string
+    }
+
+    class PessoaResponse <<frontend>> {
+        + id: number
+        + nome: string
+        + cpfCnpj: string
+        + dataNascimento: Date | null
+        + origem: string | null
+    }
+
+    class CadastrarPessoaBody <<frontend>> {
+        + nome: string
+        + cpfCnpj: string
+        + dataNascimento: Date | null
+        + origem: string | null
+    }
+
+    class AlterarPessoaBody <<frontend>> {
+        + id: number
+        + nome: string
+        + cpfCnpj: string
+        + dataNascimento: Date | null
+        + origem: string | null
+    }
+
+    class PessoasReqDTO <<frontend>> {
+        + content: PessoaResponse[]
+        + totalElements: number
+    }
+
+    class Produto <<frontend>> {
+        + numeroSerie: string
+        + aparelho: string
+        + modelo?: string
+        + observacoes?: string
+        + status?: number
+        + cor?: string
+    }
+    note right of Produto
+        Divergência: backend tem 'id'
+        Frontend não usa esse campo
+    end note
+
+    class ProdutosReqDTO <<frontend>> {
+        + items: Produto[]
+        + metadata: ProdutoMetadata
+    }
+
+    class ProdutoMetadata <<frontend>> {
+        + totalItems: number
+        + totalPages: number
+        + currentPage: number
+        + pageSize: number
+    }
+
+    class ProdutoStatus <<frontend>> {
+        + id: number
+        + nome: string
+    }
+
+    class Operacao <<frontend>> {
+        + id: number
+        + produto: ProdutoOperacao
+        + funcionario: FuncionarioOperacao
+        + pessoa: PessoaOperacao
+        + valor: number
+        + tipo: 0 | 1
+        + observacoes: string
+        + dataHoraTransacao: Date
+    }
+    note right of Operacao
+        Tipo union (0 | 1) no TypeScript
+        Objetos aninhados ao invés de IDs
+    end note
+
+    class ProdutoOperacao <<frontend>> {
+        + id: number
+        + numeroSerie: string
+        + aparelho: string
+        + modelo: string
+    }
+
+    class FuncionarioOperacao <<frontend>> {
+        + id: number
+        + nome: string
+    }
+
+    class PessoaOperacao <<frontend>> {
+        + id: number
+        + nome: string
+        + cpfCnpj: string
+    }
+
+    class AdicionarOperacaoDTO <<frontend>> {
+        + numeroSerieProduto: string | null
+        + valor: number
+        + idPessoa: number
+        + idFuncionario: number
+        + tipo: 0 | 1
+        + observacoes?: string
+        + produto?: Produto
+    }
+
+    class EditarOperacaoDTO <<frontend>> {
+        + valor: number
+        + tipo: 0 | 1
+        + observacoes?: string
+    }
+}
+
+' ========================================
+' RELACIONAMENTOS BACKEND - ENTIDADES
+' ========================================
+
+' Produto -> StatusProduto (ManyToOne)
+Produto "0..*" --> "1" StatusProduto : status >
+
+' Servico -> StatusServico (ManyToOne)
+Servico "0..*" --> "1" StatusServico : status >
+
+' Servico -> Produto (ManyToOne)
+Servico "0..*" --> "1" Produto : produto >
+
+' Servico -> Pessoa (ManyToOne, Nullable)
+Servico "0..*" --> "0..1" Pessoa : cliente >
+
+' Operacao -> Produto (ManyToOne)
+Operacao "0..*" --> "1" Produto : produto >
+
+' Operacao -> Pessoa (ManyToOne)
+Operacao "0..*" --> "1" Pessoa : pessoa >
+
+' Operacao -> Funcionario (ManyToOne)
+Operacao "0..*" --> "1" Funcionario : funcionario >
+
+' ========================================
+' RELACIONAMENTOS BACKEND - DTOs
+' ========================================
+
+' DTOs Request -> Entidades (uso)
+FuncionarioAddRequestDTO ..> Funcionario : <<cria>>
+FuncionarioUpdateRequestDTO ..> Funcionario : <<atualiza>>
+PessoaAddRequestDTO ..> Pessoa : <<cria>>
+PessoaUpdateRequestDTO ..> Pessoa : <<atualiza>>
+ProdutoAddRequestDTO ..> Produto : <<cria>>
+ProdutoUpdateRequestDTO ..> Produto : <<atualiza>>
+OperacaoAddRequestDTO ..> Operacao : <<cria>>
+OperacaoUpdateRequestDTO ..> Operacao : <<atualiza>>
+
+' DTOs Response -> Entidades (conversão)
+FuncionarioResponseDTO ..> Funcionario : <<converte>>
+FuncionarioBuscarResponseDTO ..> Funcionario : <<converte>>
+PessoaResponseDTO ..> Pessoa : <<converte>>
+PessoaBuscarResponseDTO ..> Pessoa : <<converte>>
+ProdutoResponseDTO ..> Produto : <<converte>>
+ProdutoBuscarResponseDTO ..> Produto : <<converte>>
+OperacaoResponseDTO ..> Operacao : <<converte>>
+
+' DTOs compostos
+ProdutoListResponseDTO *-- ProdutoItemDTO
+ProdutoListResponseDTO *-- PaginacaoMetadataDTO
+OperacaoAddRequestDTO o-- ProdutoAddRequestDTO : produto (opcional)
+
+' ========================================
+' RELACIONAMENTOS FRONTEND
+' ========================================
+
+' Models Frontend - Composição
+PessoasReqDTO *-- "0..*" PessoaResponse
+ProdutosReqDTO *-- "0..*" Produto
+ProdutosReqDTO *-- "1" ProdutoMetadata
+Operacao *-- "1" ProdutoOperacao
+Operacao *-- "1" FuncionarioOperacao
+Operacao *-- "1" PessoaOperacao
+AdicionarOperacaoDTO o-- "0..1" Produto : produto (opcional)
+
+' ========================================
+' RELACIONAMENTOS CROSS-STACK
+' ========================================
+' (Representação lógica, não física)
+
+AuthResponse ..> PerfisAuth : usa
+AuthLoginRequestDTO .left.> AuthLoginResponseDTO : <<retorna>>
+AuthRegisterRequestDTO .left.> AuthRegisterResponseDTO : <<retorna>>
+
+' ========================================
+' NOTAS GERAIS
+' ========================================
+note as N1
+    <b>CONVENÇÕES DO DIAGRAMA</b>
+
+    <b>Cores:</b>
+    • Amarelo claro: Entidades JPA (Backend)
+    • Azul claro: DTOs (Backend)
+    • Verde claro: Services (Backend)
+    • Laranja claro: Models TypeScript (Frontend)
+
+    <b>Relacionamentos:</b>
+    • Linha sólida com seta: Associação/Agregação
+    • Linha tracejada: Dependência/Uso
+    • Diamante preenchido: Composição
+    • Diamante vazio: Agregação
+
+    <b>Multiplicidade:</b>
+    • 0..1: Zero ou um
+    • 1: Exatamente um
+    • 0..*: Zero ou muitos
+    • 1..*: Um ou muitos
+end note
+
+note as N2
+    <b>DIVERGÊNCIAS BACKEND ↔ FRONTEND</b>
+
+    1. <b>Funcionario:</b>
+       - Backend: tem campo 'codFuncionario'
+       - Frontend: usa 'cpf' mas não 'codFuncionario' em Response
+
+    2. <b>Produto:</b>
+       - Backend: tem campo 'id' (PK)
+       - Frontend: usa apenas 'numeroSerie' como identificador
+
+    3. <b>Operacao:</b>
+       - Backend Response: retorna IDs (idPessoa, idFuncionario, etc)
+       - Frontend Model: usa objetos aninhados completos
+
+    4. <b>Tipos de Data:</b>
+       - Backend: LocalDate, LocalDateTime
+       - Frontend: Date (JavaScript)
+
+    5. <b>Tipos Numéricos:</b>
+       - Backend: Integer, BigDecimal
+       - Frontend: number
+end note
+
+note as N3
+    <b>OBSERVAÇÕES IMPORTANTES</b>
+
+    • Autenticação: JWT via Bearer Token
+    • Perfis: ADMIN (id=1) e FUNCIONARIO (id=2)
+    • Validações: Bean Validation (Backend) + Angular Forms (Frontend)
+    • Paginação: Implementada em Pessoa e Produto
+    • Status de Produto: Enum/Lookup table (StatusProduto)
+    • Operações: Tipo 0=Venda, 1=Compra
+    • Migrations: Flyway (versão V1_1 até V1_10)
+end note
+
+N1 -[hidden]- N2
+N2 -[hidden]- N3
+
+@enduml
